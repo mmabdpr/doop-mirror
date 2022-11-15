@@ -1,0 +1,21 @@
+#include "decl-relations.dl"
+#include "input-relations.dl"
+#include "types.dl"
+
+// these are mostly used in isMockVar, but the places where we combine two things will have specific #ifdef tests also
+// use --define-cpp-macro to actually define them
+// #define NO_INTERPROC 1
+// #define NO_COLLECTIONS 1
+// #define NO_ARRAYS 1
+// #define NO_FIELDS 1
+
+#include "mocks-util.dl"
+
+.decl callsMockSource(mi: MethodInvocation)
+callsMockSource(mi) :-
+  MockSourceMethod(ms),
+  CallGraphEdgeNotLambda(_, mi, _, ms).
+
+#include "mocks-core.dl"
+
+#include "output-mock-relations.dl"

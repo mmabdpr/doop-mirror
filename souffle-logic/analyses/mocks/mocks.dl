@@ -1,0 +1,32 @@
+// --extra-logic, generates .csv files that mocks-core can use
+// if you want to output the mock relations from here, include output-mock-relations.dl
+
+// ./doop -a context-insensitive -i /home/plam/hacking/MockAbstraction/Benchmarks/microbenchmark/target/payroll-test-0.0.1-SNAPSHOT.jar -i /home/plam/hacking/MockAbstraction/Benchmarks/microbenchmark/target/payroll-test-0.0.1-SNAPSHOT-tests.jar -i /home/plam/hacking/MockAbstraction/Benchmarks/microbenchmark/mvn_dependencies --id microbenchmark-context-insensitive-NORMAL --souffle-jobs 32 --main ca.liang.RootDriver --define-cpp-macro USE_CALLGRAPH --extra-logic souffle-logic/analyses/mocks/mocks.dl
+// souffle -F out/microbenchmark-context-insensitive-NORMAL/database/ -M NORMAL souffle-logic/analyses/mocks/mocks-after.dl -D results/payroll-test-0.0.1-SNAPSHOT/context-insensitive/java_8/microbenchmark-context-insensitive-NORMAL/
+
+// ./doop -a basic-only -i /home/plam/hacking/MockAbstraction/Benchmarks/microbenchmark/target/payroll-test-0.0.1-SNAPSHOT.jar -i /home/plam/hacking/MockAbstraction/Benchmarks/microbenchmark/target/payroll-test-0.0.1-SNAPSHOT-tests.jar -i /home/plam/hacking/MockAbstraction/Benchmarks/microbenchmark/mvn_dependencies --id microbenchmark-basic-only-NORMAL --souffle-jobs 32 --main ca.liang.RootDriver --define-cpp-macro USE_BASIC --extra-logic souffle-logic/analyses/mocks/mocks.dl
+
+// these are mostly used in isMockVar, but the places where we combine two things will have specific #ifdef tests also
+// use --define-cpp-macro to actually define them
+// #define NO_INTERPROC 1
+// #define NO_COLLECTIONS 1
+// #define NO_ARRAYS 1
+// #define NO_FIELDS 1
+
+// MainClass("ca.liang.RootDriver").
+
+#include "mocks-source.dl"
+#include "mocks-util.dl"
+#include "mocks-collections.dl"
+#include "mocks-callgraph.dl"
+
+// depends on the call graph, maybe we'd better not output it
+.decl callsMockSource(mi: MethodInvocation)
+callsMockSource(mi) :-
+  MockSourceMethod(ms),
+  CallGraphEdgeNotLambda(_, mi, _, ms).
+
+#include "mocks-core.dl"
+
+#include "output-all-but-mock-relations.dl"
+// #include "output-mock-relations.dl"
